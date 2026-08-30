@@ -88,7 +88,7 @@ automatiquement. La clé de licence est demandée au premier lancement.
 | V2Ray-DNS | TCP / DNS | 5401 |
 | UDP-Custom | UDP | 36712 |
 | Hysteria | QUIC | 20000 – 50000 |
-| ZIVPN | UDP | 5667 / 6000 – 19999 |
+| ZIVPN | UDP | 5667 |
 | BadVPN | UDP | 7100 / 7200 / 7300 |
 | HAProxy | TCP / TLS | 443 / 8880 |
 
@@ -109,7 +109,7 @@ automatiquement. La clé de licence est demandée au premier lancement.
 
 Huop est un panel **commercial**. Une clé de licence est requise.
 
-- **Trial** : 7 jours, support communautaire
+- **Trial** : 2 jours, support communautaire
 - **Commercial** : 365 jours, support Telegram direct, mises à jour
 
 **Achat / infos** : [@kighmu sur Telegram](https://t.me/kighmu)
