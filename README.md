@@ -8,6 +8,18 @@ Pensé pour les revendeurs et les administrateurs qui veulent un outil
 unique, stable, persistant après reboot, et pilotable en ligne de commande
 comme via Telegram.
 
+## Prérequis
+
+Avant l'installation, mettre à jour le système pour s'assurer que toutes
+les dépendances système (paquets `apt`, noyau, certificats CA) sont à jour :
+
+```bash
+apt update && apt upgrade -y
+```
+
+> Recommandé : redémarrer le VPS si le noyau a été mis à jour :
+> `reboot` (attendre 30 secondes puis se reconnecter).
+
 ## Installation
 
 ```bash
