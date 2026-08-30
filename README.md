@@ -19,332 +19,113 @@
 
 <br/>
 
-[Telegram Support](https://t.me/kighmu) · [Buy a License](https://t.me/kighmu) · [Tunnels](#-tunnels-supportés) · [Install](#-installation-rapide) · [Features](#-fonctionnalités)
+[Telegram](https://t.me/kighmu) · [Achat licence](https://t.me/kighmu)
 
 </div>
 
 ---
 
-## 📑 Table des matières
+## 📑 Sommaire
 
-- [⚡ Aperçu](#-aperçu)
 - [📦 Prérequis](#-prérequis)
-- [🚀 Installation rapide](#-installation-rapide)
+- [🚀 Installation](#-installation)
 - [🔧 Tunnels supportés](#-tunnels-supportés)
-- [🧩 Architecture](#-architecture)
 - [💎 Fonctionnalités](#-fonctionnalités)
 - [🔐 Licence](#-licence)
 - [🛟 Support](#-support)
-- [📜 Crédits](#-crédits)
-
----
-
-## ⚡ Aperçu
-
-Huop est un panneau d'administration VPS **tout-en-un** conçu pour les
-revendeurs et les administrateurs qui veulent un outil unique, stable,
-persistant après reboot, et pilotable en ligne de commande **comme**
-via Telegram.
-
-Pensé pour des installations de production :
-- **Zéro dépendance externe** au runtime (binaire statique, autocontenu)
-- **Persistance triple-redondante** (systemd timer + cron + daemon)
-- **Validation de licence liée au matériel** (anti-piratage)
-- **Rollback automatique** en cas de crash d'un service (watchdogs 1 min)
-- **Multi-tenants** via système de revendeurs intégrés
-
-```
-┌──────────────────────────────────────────────────────────────────┐
-│                          VPS / Serveur                            │
-│                                                                  │
-│  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐  │
-│  │ Xray      │  │ Hysteria   │  │ ZIVPN      │  │ SlowDNS    │  │
-│  │ 443/8880  │  │ 20000-50000│  │ 5667/6k-20k│  │ 53         │  │
-│  └─────┬──────┘  └─────┬──────┘  └─────┬──────┘  └─────┬──────┘  │
-│        │               │               │               │         │
-│  ┌─────┴───────────────┴───────────────┴───────────────┴──────┐  │
-│  │                    HAProxy (TLS termination)               │  │
-│  └─────┬──────────────────────────────────────────────────────┘  │
-│        │                                                          │
-│  ┌─────┴──────┐  ┌──────────┐  ┌──────────┐  ┌─────────────┐     │
-│  │ Dropbear  │  │ SSH-WS   │  │ SSL/TLS  │  │ BadVPN UDPGW│     │
-│  │ 109       │  │ 80       │  │ 444      │  │ 7100-7300   │     │
-│  └────────────┘  └──────────┘  └──────────┘  └─────────────┘     │
-│                                                                  │
-│  ┌────────────────────────────────────────────────────────────┐ │
-│  │  Huop Panel (binaire statique  →  /usr/local/bin/kighmu)   │ │
-│  │  + Telegram Bot  + License watchdog  + Quota trackers       │ │
-│  └────────────────────────────────────────────────────────────┘ │
-└──────────────────────────────────────────────────────────────────┘
-```
 
 ---
 
 ## 📦 Prérequis
 
-Avant l'installation, mettre à jour le système :
+Mettre à jour le système avant l'installation :
 
 ```bash
 apt update && apt upgrade -y
 ```
 
-> 💡 Si le noyau a été mis à jour, **redémarrer** avant l'installation :
+> 💡 Si le noyau a été mis à jour, **redémarrer** :
 > ```bash
 > reboot
 > ```
 > Attendre ~30 secondes avant de vous reconnecter.
 
-**Exigences minimales** :
+**Exigences** :
 
-| Ressource | Minimum | Recommandé |
-|---|---|---|
-| **OS** | Debian 11 / Ubuntu 20.04 | Debian 12 / Ubuntu 22.04 |
-| **RAM** | 512 MB | 1 GB+ |
-| **CPU** | 1 vCPU | 2 vCPU+ |
-| **Disque** | 2 GB libre | 5 GB+ |
-| **Réseau** | IPv4 publique | IPv4 + IPv6 |
-| **Accès** | `root` (SSH ou console) | — |
+| Ressource | Minimum |
+|---|---|
+| **OS** | Debian 11+ / Ubuntu 20.04+ |
+| **RAM** | 512 MB |
+| **CPU** | 1 vCPU |
+| **Disque** | 2 GB libre |
+| **Réseau** | IPv4 publique |
+| **Accès** | `root` |
 
 ---
 
-## 🚀 Installation rapide
+## 🚀 Installation
 
-**One-liner** (recommandé) :
+**One-liner** :
 
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/adriop-45/Huop/main/install.sh)
 ```
 
-**Méthode manuelle** (clone direct) :
-
-```bash
-git clone https://github.com/adriop-45/Huop.git
-cd Huop
-chmod +x install.sh
-./install.sh
-```
-
-Le script :
-
-1. ✅ Détecte automatiquement l'architecture (`x86_64` ou `ARM64`)
-2. ✅ Télécharge le binaire compilé correspondant (29 MB / 27 MB)
-3. ✅ Valide l'intégrité (signature ELF + taille minimale)
-4. ✅ Installe les dépendances système (`curl`, `nftables`, `jq`, `sqlite3`, `vnstat`...)
-5. ✅ Lance le panneau en mode interactif
-
-Une fois installé, le menu principal s'affiche. Saisissez votre **clé
-de licence** lorsque demandé (voir [Licence](#-licence)).
-
-<details>
-<summary><b>🔧 Désinstallation complète</b></summary>
-
-```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/adriop-45/Huop/main/install.sh) --auto-uninstall
-```
-
-Supprime **tous** les services, fichiers, configurations, utilisateurs
-système et redémarre le VPS. ⚠️ **Action irréversible**.
-
-</details>
+Le script détecte l'architecture, télécharge le binaire et l'installe
+automatiquement. La clé de licence est demandée au premier lancement.
 
 ---
 
 ## 🔧 Tunnels supportés
 
-| # | Tunnel | Transport | Port(s) | Protocoles |
-|---|---|---|---|---|
-| 1 | **OpenSSH + Dropbear** | TCP direct | `22` / `109` | SSH v2 |
-| 2 | **SSH-WS (slipstream)** | WebSocket | `80` | HTTP/WS tunneled |
-| 3 | **SSL/TLS tunnel** | TLS direct | `444` | TLS 1.3 |
-| 4 | **SlowDNS (dnstt)** | DNS over UDP | `53` | TXT records |
-| 5 | **Xray** | Multi-transport | `443` / `8880` | VMess · VLESS · Trojan · Shadowsocks |
-| 6 | **Xray transports** | xHTTP / gRPC / WS | `10012-10019` (local) | Splitting / mux |
-| 7 | **V2Ray-DNS** | TCP over DNS tunnel | `5401` | VLESS + Trojan |
-| 8 | **UDP-Custom** | UDP + catchall DNAT | `36712` | Password auth |
-| 9 | **Hysteria v1** | QUIC | `20000 – 50000` | Obfuscation |
-| 10 | **ZIVPN** | UDP obfuscated | `5667` / `6000 – 19999` | obfs=zivpn |
-| 11 | **BadVPN UDPGW** | UDP | `7100` / `7200` / `7300` | UDP gateway |
-| 12 | **HAProxy** | TCP/TLS fronting | `443` / `8880` / `9898` | LB + SNI routing |
-
----
-
-## 🧩 Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         STRUCTURE INTERNE                            │
-└─────────────────────────────────────────────────────────────────────┘
-
-  /etc/kighmu/                 Configuration centrale
-  ├── users/                    Meta-données par utilisateur (key=value)
-  ├── banners/                  Bannières SSH pre-auth (HTML)
-  ├── state/                    Flags persistants (optimized, autostart…)
-  ├── ssh-shell.sh              Login shell wrapper
-  └── bot/                      Telegram bot (token, resellers.db, audit)
-
-  /etc/xray/                   Config Xray (10001-10019 inbounds)
-  /etc/zivpn/                  Config + quota-state ZIVPN
-  /etc/hysteria/               Config Hysteria
-  /etc/dnsdist/                Config SlowDNS
-  /etc/ssh/sshd_config.d/      Match User Banner (pre-auth HTML)
-
-  /etc/systemd/system/
-  ├── xray.service              Xray daemon
-  ├── haproxy.service           HAProxy daemon
-  ├── kighmu-ssh-tracker.service  Quota tracker SSH (Restart=always)
-  ├── kighmu-ssh-quota-sync.timer Regen banners + sync (60s, Persistent)
-  ├── kighmu-bot.service        Telegram bot
-  └── kighmu-watchdog.{service,timer}  License watchdog (5s boot, 1h)
-
-  /usr/local/bin/
-  ├── kighmu                    Binaire principal
-  ├── kighmu-bot                Alias bot
-  ├── xray                      Binaire Xray
-  ├── v2ray                     Binaire V2Ray
-  ├── hysteria-linux-amd64      Binaire Hysteria
-  ├── zivpn                     Binaire ZIVPN
-  ├── sshws / ssl_tls           Tunnels SSH
-  ├── udp-custom                Catchall UDP
-  ├── dnstt-server              SlowDNS
-  └── badvpn-udpgw              BadVPN
-```
+| Tunnel | Transport | Port(s) |
+|---|---|---|
+| OpenSSH + Dropbear | TCP | 22 / 109 |
+| SSH-WS | WebSocket | 80 |
+| SSL/TLS | TLS | 444 |
+| SlowDNS | DNS | 53 |
+| Xray (VMess / VLESS / Trojan) | TCP / WS / gRPC / xHTTP | 443 / 8880 |
+| V2Ray-DNS | TCP / DNS | 5401 |
+| UDP-Custom | UDP | 36712 |
+| Hysteria | QUIC | 20000 – 50000 |
+| ZIVPN | UDP | 5667 / 6000 – 19999 |
+| BadVPN | UDP | 7100 / 7200 / 7300 |
+| HAProxy | TCP / TLS | 443 / 8880 |
 
 ---
 
 ## 💎 Fonctionnalités
 
-<details>
-<summary><b>👥 Gestion des utilisateurs</b></summary>
-
-- Création / suppression / renouvellement / verrouillage par protocole
-- Quota data par utilisateur (GB, auto-bloquant au dépassement)
-- Expiration automatique (cron `*/5` + `quota-enforce`)
-- Bannières SSH dynamiques (pre-auth HTML + post-login texte)
-- Limite IP par utilisateur
-- Bulk operations : `renew 1,3-5 30` · `setquota 1-3 50`
-
-</details>
-
-<details>
-<summary><b>🔄 Persistance après reboot</b></summary>
-
-- **Systemd timer** `kighmu-ssh-quota-sync.timer` (60s, `Persistent=true`)
-- **Cron fallback** `*/5 * * * * kighmu --ssh-quota-sync`
-- **Daemon tracker** `kighmu-ssh-tracker.service` (`Restart=always`)
-- Survit aux plantages, redémarrages, timeouts keep-alive
-- Watchdogs 1-3 min sur tous les services critiques
-
-</details>
-
-<details>
-<summary><b>🛡️ Firewall nftables</b></summary>
-
-- Isolation par table `inet <protocole>` (nftables-tunnel@.service)
-- Watchdog de dédup pour éviter conflits avec Docker et tables tierces
-- Catchall DNAT pour UDP-Custom (exclusion slowdns port 53)
-- Tables indépendantes pour SSH quota tracking (connexion-based)
-
-</details>
-
-<details>
-<summary><b>🤖 Telegram Bot</b></summary>
-
-- Dashboard : users, services, ressources, trafic
-- CRUD users par protocole (SSH / Xray / V2Ray-DNS / ZIVPN / Hysteria)
-- Multi-revendeurs : sous-bots isolés, quotas dédiés, tunnels autorisés
-- Authentification par Telegram ID ou par access code
-- Notification d'expiration automatique
-- Compatible python-telegram-bot v13+
-
-</details>
-
-<details>
-<summary><b>📊 Trafic et monitoring</b></summary>
-
-- vnstat : trafic D / W / M par interface
-- Comptage SSH par utilisateur via compteurs nftables
-- Statistiques Xray via API dokodemo-door
-- Quota enforcer (cron `*/5`) bloque automatiquement les dépassements
-- Alerte Telegram quand quota > 90%
-
-</details>
-
-<details>
-<summary><b>🔐 Sécurité et licence</b></summary>
-
-- Licence liée au matériel (fingerprint HMAC-SHA256)
-- Vérification toutes les heures (timer `kighmu-watchdog.timer`)
-- Auto-désinstallation silencieuse si licence expirée / absente
-- Token Telegram chiffré en SQLite (HMAC + machine-id)
-
-</details>
+- 👥 **Gestion utilisateurs** : création, suppression, renouvellement,
+  verrouillage, quota data par utilisateur
+- 🔄 **Persistance** : triple-redondant (systemd timer + cron + daemon)
+- 🛡️ **Firewall** : nftables isolé, watchdog anti-conflit
+- 🤖 **Telegram Bot** : dashboard, CRUD users, multi-revendeurs
+- 📊 **Monitoring** : vnstat + quota SSH temps réel
 
 ---
 
 ## 🔐 Licence
 
-Huop est un panel **commercial**. Une clé de licence est requise pour
-l'utilisation professionnelle.
+Huop est un panel **commercial**. Une clé de licence est requise.
 
-| Inclus | Gratuit (trial) | Commercial |
-|---|---|---|
-| Durée | 7 jours | 365 jours |
-| Support | Communautaire | Telegram direct |
-| Mises à jour | — | Incluses |
-| Revendeurs | 1 | Illimités |
-| Quota data | 50 GB | Illimité |
-| Prix | 0 € | Sur demande |
+- **Trial** : 7 jours, support communautaire
+- **Commercial** : 365 jours, support Telegram direct, mises à jour
 
-**Pour obtenir une clé de licence** :
-
-- 📩 **Telegram** : [@kighmu](https://t.me/kighmu)
-- 📨 **Inbox** : [@kighmu](https://t.me/kighmu)
-
-> 💼 Tarifs dégressifs pour les revendeurs et les parcs > 5 VPS.
+**Achat / infos** : [@kighmu sur Telegram](https://t.me/kighmu)
 
 ---
 
 ## 🛟 Support
 
-- 📩 **Telegram** : [@kighmu](https://t.me/kighmu) — réponse sous 24h
-- 🐛 **Issues GitHub** : [github.com/adriop-45/Huop/issues](https://github.com/adriop-45/Huop/issues)
-- 📖 **Documentation** : ce README
-
-**Avant d'ouvrir un ticket**, préparez :
-
-```bash
-# Logs des services
-journalctl -u kighmu-bot -u xray -u haproxy -n 100 --no-pager
-
-# Statut du panel
-kighmu --render main
-
-# Version OS / arch
-uname -a && cat /etc/os-release
-```
-
----
-
-## 📜 Crédits
-
-Huop s'appuie sur les briques open-source suivantes :
-
-- [Xray-core](https://github.com/XTLS/Xray-core) — proxy multi-protocole
-- [V2Ray](https://github.com/v2fly/v2ray-core) — fallback VLESS/Trojan
-- [Hysteria](https://github.com/apernet/hysteria) — QUIC proxy
-- [ZIVPN](https://github.com/zahidbd2/udp-zivpn) — UDP obfuscated
-- [dnstt](https://github.com/bugsfounder/dnstt) — DNS tunnel
-- [BadVPN](https://github.com/ambrop72/badvpn) — UDP gateway
-- [HAProxy](http://www.haproxy.org/) — load balancer
-- [Nuitka](https://nuitka.net/) — Python-to-C compilation
+- 📩 Telegram : [@kighmu](https://t.me/kighmu)
+- 🐛 Issues : ce dépôt GitHub
 
 ---
 
 <div align="center">
 
 **© Huop. Tous droits réservés.**
-
-Made with ❤️ by the Huop team
 
 [Telegram](https://t.me/kighmu) · [GitHub](https://github.com/adriop-45/Huop)
 
