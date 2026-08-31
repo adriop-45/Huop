@@ -11,17 +11,25 @@ BASES=(
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[0;33m'; CYAN='\033[0;36m'
 WHITE='\033[0;97m'; GRAY='\033[0;90m'; RST='\033[0m'
 
-echo -e "\n  ${CYAN}╔══════════════════════════════════════════════════════╗${RST}"
-echo -e "              ${WHITE}Huop — Installation automatique${RST}"
-echo -e "  ${CYAN}╚══════════════════════════════════════════════════════╝${RST}\n"
+# ──────────────────────────────────────────────────────────────────
+# Definitions de fonctions (avant toute utilisation)
+# ──────────────────────────────────────────────────────────────────
 
-[[ $EUID -eq 0 ]] || { echo -e "  ${RED}✗${RST} Root requis."; exit 1; }
-
-os_id=$(grep ^ID= /etc/os-release 2>/dev/null | cut -d= -f2 | tr -d '"')
-[[ "$os_id" =~ ^(debian|ubuntu)$ ]] || { echo -e "  ${RED}✗${RST} Debian/Ubuntu seulement."; exit 1; }
-
-# Verifie la version de glibc AVANT de telecharger quoi que ce soit.
-check_glibc
+# Verifie la version de glibc (ldd) sur le systeme cible.
+# Le binaire est compile sous Ubuntu 22.04 (glibc 2.35) pour x86_64
+# et Ubuntu 24.04 (glibc 2.39) pour arm64.
+# glibc >= 2.31 = Debian 11+ / Ubuntu 20.04+.
+check_glibc() {
+    local ldd_v cur
+    ldd_v=$(ldd --version 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+' | head -1)
+    cur="${ldd_v:-0.0}"
+    awk -v v="$cur" 'BEGIN{exit !(v >= 2.31)}' || {
+        echo -e "  ${RED}✗${RST} glibc ${ldd_v} trop ancien (besoin >= 2.31)."
+        echo -e "  ${GRAY}  Upgrade vers Debian 11+ / Ubuntu 20.04+ puis reessayez.${RST}"
+        exit 1
+    }
+    echo -e "  ${GRAY}→ glibc ${ldd_v} OK (>= 2.31)${RST}"
+}
 
 # Telechargement multi-miroirs : IPv4 force, reprises, erreurs visibles.
 dl() {
@@ -49,26 +57,21 @@ require_elf() {
         echo -e "  ${RED}✗ Fichier invalide reçu (${1}) — abandon."; exit 1; }
 }
 
-# Verifie la version de glibc (ldd) sur le systeme cible.
-# Le binaire est compile sous Debian 12 (bookworm) = glibc 2.36, donc
-# toute version >= 2.31 (Debian 11, Ubuntu 20.04+) est supportee.
-check_glibc() {
-    local ldd_v cur
-    ldd_v=$(ldd --version 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+' | head -1)
-    cur="${ldd_v:-0.0}"
-    awk -v v="$cur" 'BEGIN{exit !(v >= 2.31)}' || {
-        echo -e "  ${RED}✗${RST} glibc ${ldd_v} trop ancien (besoin >= 2.31)."
-        echo -e "  ${GRAY}  Upgrade vers Debian 11+ / Ubuntu 20.04+ puis reessayez.${RST}"
-        exit 1
-    }
-    echo -e "  ${GRAY}→ glibc ${ldd_v} OK (>= 2.31)${RST}"
-}
+# ──────────────────────────────────────────────────────────────────
+# Debut de l'installation
+# ──────────────────────────────────────────────────────────────────
 
-# Test rapide du binaire (evite de crasher en plein milieu de l'install
-# si le binaire requiert une glibc plus recente que le systeme).
-probe_binary() {
-    "$1" --help 2>/dev/null || true
-}
+echo -e "\n  ${CYAN}╔══════════════════════════════════════════════════════╗${RST}"
+echo -e "              ${WHITE}Huop — Installation automatique${RST}"
+echo -e "  ${CYAN}╚══════════════════════════════════════════════════════╝${RST}\n"
+
+[[ $EUID -eq 0 ]] || { echo -e "  ${RED}✗${RST} Root requis."; exit 1; }
+
+os_id=$(grep ^ID= /etc/os-release 2>/dev/null | cut -d= -f2 | tr -d '"')
+[[ "$os_id" =~ ^(debian|ubuntu)$ ]] || { echo -e "  ${RED}✗${RST} Debian/Ubuntu seulement."; exit 1; }
+
+# Verifie la version de glibc AVANT de telecharger quoi que ce soit.
+check_glibc
 
 export DEBIAN_FRONTEND=noninteractive
 echo -e "  ${YELLOW}→${RST} Mise à jour des paquets..."
