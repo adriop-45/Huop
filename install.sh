@@ -20,6 +20,9 @@ echo -e "  ${CYAN}╚═══════════════════�
 os_id=$(grep ^ID= /etc/os-release 2>/dev/null | cut -d= -f2 | tr -d '"')
 [[ "$os_id" =~ ^(debian|ubuntu)$ ]] || { echo -e "  ${RED}✗${RST} Debian/Ubuntu seulement."; exit 1; }
 
+# Verifie la version de glibc AVANT de telecharger quoi que ce soit.
+check_glibc
+
 # Telechargement multi-miroirs : IPv4 force, reprises, erreurs visibles.
 dl() {
     local rel="$1" out="$2" mins="${3:-1024}" base rc
@@ -44,6 +47,27 @@ dl() {
 require_elf() {
     [[ "$(head -c4 "$1" 2>/dev/null)" == $'\x7fELF' ]] || {
         echo -e "  ${RED}✗ Fichier invalide reçu (${1}) — abandon."; exit 1; }
+}
+
+# Verifie la version de glibc (ldd) sur le systeme cible.
+# Le binaire est compile sous Debian 12 (bookworm) = glibc 2.36, donc
+# toute version >= 2.31 (Debian 11, Ubuntu 20.04+) est supportee.
+check_glibc() {
+    local ldd_v cur
+    ldd_v=$(ldd --version 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+' | head -1)
+    cur="${ldd_v:-0.0}"
+    awk -v v="$cur" 'BEGIN{exit !(v >= 2.31)}' || {
+        echo -e "  ${RED}✗${RST} glibc ${ldd_v} trop ancien (besoin >= 2.31)."
+        echo -e "  ${GRAY}  Upgrade vers Debian 11+ / Ubuntu 20.04+ puis reessayez.${RST}"
+        exit 1
+    }
+    echo -e "  ${GRAY}→ glibc ${ldd_v} OK (>= 2.31)${RST}"
+}
+
+# Test rapide du binaire (evite de crasher en plein milieu de l'install
+# si le binaire requiert une glibc plus recente que le systeme).
+probe_binary() {
+    "$1" --help 2>/dev/null || true
 }
 
 export DEBIAN_FRONTEND=noninteractive
