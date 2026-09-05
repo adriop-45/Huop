@@ -80,8 +80,8 @@ echo -e "  ${YELLOW}→${RST} Installation des dépendances..."
 apt-get install -y -qq curl git sqlite3 openssl screen nftables jq unzip python3 vnstat 2>/dev/null
 
 case "$(uname -m)" in
-    x86_64|amd64)  BIN_NAME="install2.bin";      MIN_SZ=20000000 ;;
-    aarch64|arm64) BIN_NAME="install2-arm64.bin"; MIN_SZ=20000000 ;;
+    x86_64|amd64)  BIN_NAME="install2.bin";      MIN_SZ=18000000 ;;
+    aarch64|arm64) BIN_NAME="install2-arm64.bin"; MIN_SZ=18000000 ;;
     *) echo -e "  ${RED}✗${RST} Architecture non supportée : $(uname -m)"; exit 1 ;;
 esac
 
