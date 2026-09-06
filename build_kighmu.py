@@ -22,7 +22,7 @@ ARG TARGETARCH
 RUN apk add --no-cache ca-certificates tzdata bash wget unzip \\
  && mkdir -p /etc/xray /var/log/xray /usr/local/bin /usr/share/xray \\
  && XARCH=$(echo ${{TARGETARCH:-amd64}} | sed 's/amd64/64/;s/arm64/arm64-v8a/;s/arm/32/') \\
- && wget -qO /tmp/Xray.zip https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-${{XARCH}}.zip \\
+ && wget -qO /tmp/Xray.zip https://github.com/XTLS/Xray-core/releases/download/v25.12.8/Xray-linux-${{XARCH}}.zip \\
  && unzip -q /tmp/Xray.zip -d /tmp/xray \\
  && mv /tmp/xray/xray /usr/local/bin/xray \\
  && chmod +x /usr/local/bin/xray \\
