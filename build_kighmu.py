@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-kighmu-vpn builder - Génère l'image docker.io/adriop-45/kighmu-vpn
+kighmu-vpn builder - Génère l'image docker.io/adriop45/kighmu-vpn
 UUID: aaaa0000-1111-4222-8333-444455556666
 WSPATH: /@kighmu
 Usage:
@@ -12,11 +12,11 @@ import os, subprocess, argparse, textwrap, pathlib
 
 UUID = "aaaa0000-1111-4222-8333-444455556666"
 WSPATH = "/@kighmu"
-IMAGE = "docker.io/adriop-45/kighmu-vpn:latest"
+IMAGE = "docker.io/adriop45/kighmu-vpn:latest"
 PORT = 8080
 
 DOCKERFILE = f"""FROM alpine:3.22
-LABEL maintainer="adriop-45 <kighmu>"
+LABEL maintainer="adriop45 <kighmu>"
 WORKDIR /root
 ARG TARGETARCH
 RUN apk add --no-cache ca-certificates tzdata bash wget unzip \\
@@ -86,5 +86,5 @@ if __name__ == "__main__":
     if args.push: push_image()
     if not args.build:
         print("\nEnsuite en local:")
-        print("  docker build -t docker.io/adriop-45/kighmu-vpn:latest .")
-        print("  docker push docker.io/adriop-45/kighmu-vpn:latest")
+        print("  docker build -t docker.io/adriop45/kighmu-vpn:latest .")
+        print("  docker push docker.io/adriop45/kighmu-vpn:latest")

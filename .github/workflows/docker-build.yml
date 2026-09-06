@@ -40,6 +40,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: docker.io/adriop-45/kighmu-vpn:latest
+          tags: docker.io/adriop45/kighmu-vpn:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
