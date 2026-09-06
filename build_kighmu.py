@@ -48,11 +48,11 @@ WSPATH="${{WSPATH:-{WSPATH}}}"
 cat > /etc/xray/config.json <<EOF
 {{
   "log": {{"loglevel": "warning"}},
-  "inbounds": [{{
-    "port": ${{PORT}},
-    "protocol": "trojan",
-    "settings": {{"clients": [{{"password": "${{PASSWORD}}","level": 0}}]}},
-    "streamSettings": {{"network": "ws","wsSettings": {{"path": "${{WSPATH}}"}}}}
+"inbounds": [{{
+    "port": {PORT},
+    "protocol": "vless",
+    "settings": {{"clients": [{{"id": "{PASSWORD}","level": 0}}],"decryption": "none"}},
+    "streamSettings": {{"network": "ws","wsSettings": {{"path": "{WSPATH}"}}}}
   }}],
   "outbounds": [{{"protocol": "freedom"}}]
 }}
